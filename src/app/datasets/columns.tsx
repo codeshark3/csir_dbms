@@ -58,9 +58,7 @@ export const columns: ColumnDef<Dataset>[] = [
     accessorKey: "year",
     header: "Year Of Start",
     cell: ({ row }) => {
-      return (
-        <div className="text-center font-medium">{row.getValue("year")}</div>
-      );
+      return <div className="font-medium">{row.getValue("year")}</div>;
     },
   },
 
@@ -69,12 +67,11 @@ export const columns: ColumnDef<Dataset>[] = [
     header: "Description",
     cell: ({ row }) => {
       const description = (row.getValue("description") as string) || "";
-      const lines = description.split("\n");
-      const truncatedDescription = lines.slice(0, 2).join("\n");
-
-      return (
-        <div className="text-center font-medium">{truncatedDescription}</div>
-      );
+      const truncatedDescription =
+        description.length > 100
+          ? `${description.slice(0, 100)}...`
+          : description;
+      return <div className="font-medium">{truncatedDescription}</div>;
     },
   },
 

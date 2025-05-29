@@ -29,7 +29,7 @@ export const columns: ColumnDef<AccessRequest>[] = [
   //   header: ({ column }) => {
   //     return (
   //       <Button
-  //         className="text-center"
+  //         className=""
   //         variant="ghost"
   //         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
   //       >
@@ -64,9 +64,7 @@ export const columns: ColumnDef<AccessRequest>[] = [
 
     header: () => <div className="text-center">Reason</div>,
     cell: ({ row }) => {
-      return (
-        <div className="text-center font-medium">{row.getValue("reason")}</div>
-      );
+      return <div className="font-medium">{row.getValue("reason")}</div>;
     },
   },
   {
@@ -75,7 +73,7 @@ export const columns: ColumnDef<AccessRequest>[] = [
     cell: ({ row }) => {
       return (
         <span
-          className={`rounded-md px-2 py-1 text-center text-sm font-medium ${
+          className={`rounded-md px-2 py-1 text-sm font-medium ${
             row.getValue("status") === "approved"
               ? "bg-emerald-500 text-white"
               : row.getValue("status") === "rejected"
@@ -92,22 +90,14 @@ export const columns: ColumnDef<AccessRequest>[] = [
     accessorKey: "user_name",
     header: "User Name",
     cell: ({ row }) => {
-      return (
-        <div className="text-center font-medium">
-          {row.getValue("user_name")}
-        </div>
-      );
+      return <div className="font-medium">{row.getValue("user_name")}</div>;
     },
   },
   {
     accessorKey: "createdAt",
     header: "Created At",
     cell: ({ row }) => {
-      return (
-        <div className="text-center font-medium">
-          {row.getValue("createdAt")}
-        </div>
-      );
+      return <div className="font-medium">{row.getValue("createdAt")}</div>;
     },
   },
   // {

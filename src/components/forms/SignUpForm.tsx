@@ -19,6 +19,7 @@ import { FormFieldType } from "../CustomFormField";
 import { Button } from "../ui/button";
 import { authClient } from "~/lib/auth-client";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const SignUpForm = () => {
   const router = useRouter();
@@ -75,6 +76,16 @@ const SignUpForm = () => {
   return (
     <Card className="mx-auto w-full max-w-md">
       <CardHeader>
+        <div className="flex flex-col items-center justify-center pb-4">
+          <Image
+            src="/assets/images/logo.png"
+            alt="Logo"
+            width={100}
+            height={100}
+            className="pb-4"
+          />
+          <h1 className="text-bold text-xl">CSIR Database Management System</h1>
+        </div>
         <CardTitle>Sign Up</CardTitle>
         <CardDescription>Create your account to get started.</CardDescription>
       </CardHeader>
@@ -118,7 +129,7 @@ const SignUpForm = () => {
               // iconAlt="email"
             />
             <Button type="submit" className="w-full bg-primary">
-              Sign In
+              Sign Up
               {/* <span className="ms-1">🔑</span> */}
             </Button>
           </form>
@@ -128,7 +139,7 @@ const SignUpForm = () => {
         <p className="text-sm text-muted-foreground">
           Already have an account?{" "}
           <Link href="/sign-in" className="text-primary hover:underline">
-            Sign Up
+            Sign In
           </Link>
         </p>
       </CardFooter>

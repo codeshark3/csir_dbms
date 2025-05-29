@@ -6,7 +6,7 @@ import { deleteDataset } from "~/server/dataset_queries";
 import { Button } from "~/components/ui/button";
 
 interface DatasetDeleteButtonProps {
-  datasetId: number;
+  datasetId: string;
   //  onDelete: (id: number) => void;
 }
 

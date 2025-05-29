@@ -223,19 +223,20 @@ const MENU_ITEMS: Record<string, MenuItem[]> = {
     { title: "Insert Dataset", url: "/datasets/create", icon: User2 },
     { title: "Manage Datasets", url: "/datasets", icon: Calendar },
     { title: "Access Requests", url: "/access", icon: Inbox },
+    { title: "Profile", url: "/profile", icon: Settings },
   ],
   staff: [
     { title: "Home", url: "/staff", icon: Home },
+    { title: "Insert Dataset", url: "/datasets/create", icon: User2 },
     { title: "Manage Datasets", url: "/datasets", icon: Inbox },
     { title: "Access Requests", url: "/access", icon: Inbox },
-    { title: "Calendar", url: "#", icon: Calendar },
-    { title: "Search", url: "#", icon: Search },
-    { title: "Settings", url: "#", icon: Settings },
+
+    { title: "Profile", url: "/profile", icon: Settings },
   ],
   user: [
     { title: "Home", url: "/customer", icon: Home },
     { title: "Datasets", url: "/datasets", icon: Inbox },
-    { title: "Settings", url: "#", icon: Settings },
+    { title: "Profile", url: "/profile", icon: Settings },
   ],
 };
 

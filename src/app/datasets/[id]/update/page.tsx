@@ -24,7 +24,7 @@ const UpdateDatasetForm = () => {
   const form = useForm<z.infer<typeof datasetSchema>>({
     resolver: zodResolver(datasetSchema),
     defaultValues: async () => {
-      const data = await getDatasetById(Number(id));
+      const data = await getDatasetById(id);
       if (!data?.[0]) {
         throw new Error("Dataset not found");
       }
@@ -35,7 +35,7 @@ const UpdateDatasetForm = () => {
         pi_name: dataset.pi_name,
         description: dataset.description,
         division: dataset.division,
-        papers: dataset.papers ?? "",
+        papers: [] as { title: string; url: string }[],
         tags: dataset.tags ?? "",
       };
     },
@@ -43,7 +43,7 @@ const UpdateDatasetForm = () => {
 
   const onSubmit = (values: z.infer<typeof datasetSchema>) => {
     startTransition(() => {
-      updateDataset(Number(id), values)
+      updateDataset(id, values)
         .then((data) => {
           if (data.success) {
             toast({

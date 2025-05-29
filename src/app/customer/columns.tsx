@@ -45,9 +45,7 @@ export const columns: ColumnDef<SavedDataset>[] = [
     accessorKey: "title",
     header: "Dataset Title",
     cell: ({ row }) => {
-      return (
-        <div className="text-center font-medium">{row.getValue("title")}</div>
-      );
+      return <div className="font-medium">{row.getValue("title")}</div>;
     },
   },
   {
@@ -57,7 +55,7 @@ export const columns: ColumnDef<SavedDataset>[] = [
       const status = row.getValue("status") as string | null;
       return (
         <span
-          className={`rounded-md px-2 py-1 text-center text-sm font-medium ${
+          className={`rounded-md px-2 py-1 text-sm font-medium ${
             status === "approved"
               ? "bg-emerald-500 text-white"
               : status === "rejected"

@@ -21,6 +21,7 @@ const staffRoutes = [
   "/datasets/update/:id*",
   "/access",
   "/access/[id]",
+  "/profile",
 ];
 const adminRoutes = [
   "/admin",
@@ -32,12 +33,15 @@ const adminRoutes = [
   "/datasets",
   "/datasets/delete/:id*",
   "/access",
+  "/access/[id]",
+  "/profile",
 ];
 const customerRoutes = [
   "/customer",
   "/datasets",
   "/customer/access",
   "/customer/access/[id]",
+  "/profile",
 ];
 
 export default async function authMiddleware(request: NextRequest) {
