@@ -40,10 +40,15 @@ const Header = async () => {
             </Button>
           </Form> */}
           <div className="hidden border-r md:inline"></div>
-
+          {/* <Link href="/" className={buttonVariants()}>
+            <h1>Home</h1>
+          </Link> */}
           {session ? (
             <div className="flex items-center gap-2">
-              <Link href='/customer' className={buttonVariants()}> Dashboard</Link>
+              <Link href="/customer" className={buttonVariants()}>
+                {" "}
+                Dashboard
+              </Link>
               <form
                 action={async () => {
                   "use server";

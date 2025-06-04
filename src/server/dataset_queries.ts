@@ -2,7 +2,7 @@
 "use server";
 import { db } from "./db";
 import * as z from "zod";
-import { and, eq, ilike, or } from "drizzle-orm";
+import { and, count, eq, ilike, or } from "drizzle-orm";
 import {
   datasetInsertSchema,
   datasetSchema,
@@ -15,7 +15,9 @@ import {
   saved_dataset,
   access_request,
   //  papers,
+  user,
 } from "./db/schema";
+
 import { auth } from "~/lib/auth";
 import { headers } from "next/headers";
 import { title } from "process";
@@ -239,4 +241,28 @@ export async function deleteSavedDataset(datasetId: string) {
   } catch (error: any) {
     return { error: error?.message };
   }
+}
+
+export async function getDatasetStatistics() {
+  const counts = await db
+    .select({
+      count: count(),
+    })
+    .from(dataset);
+
+  const requests = await db
+    .select({
+      count: count(),
+    })
+    .from(access_request);
+
+  const users = await db
+    .select({
+      count: count(),
+    })
+    .from(user);
+
+  // INSERT_YOUR_CODE
+  const statistics = [counts[0]?.count, requests[0]?.count, users[0]?.count];
+  return statistics;
 }

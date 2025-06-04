@@ -67,29 +67,23 @@ export const columns: ColumnDef<Users>[] = [
     accessorKey: "name",
     // header: "Start date",
 
-    header: () => <div className="text-center">Gender</div>,
+    header: () => <div className="">Gender</div>,
     cell: ({ row }) => {
-      return (
-        <div className="text-center font-medium">{row.getValue("name")}</div>
-      );
+      return <div className="font-medium">{row.getValue("name")}</div>;
     },
   },
   {
     accessorKey: "role",
     header: "Role",
     cell: ({ row }) => {
-      return (
-        <div className="text-center font-medium">{row.getValue("role")}</div>
-      );
+      return <div className="font-medium">{row.getValue("role")}</div>;
     },
   },
   {
     accessorKey: "email",
     header: "Email",
     cell: ({ row }) => {
-      return (
-        <div className="text-center font-medium">{row.getValue("email")}</div>
-      );
+      return <div className="font-medium">{row.getValue("email")}</div>;
     },
   },
 

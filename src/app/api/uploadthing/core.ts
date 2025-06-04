@@ -1,5 +1,7 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { UploadThingError } from "uploadthing/server";
+import { auth } from "~/lib/auth";
+import { headers } from "next/headers";
 
 const f = createUploadthing();
 
@@ -15,28 +17,19 @@ export const ourFileRouter = {
       maxFileCount: 1,
     },
   })
-    .middleware(async ({ req }) => {
-      try {
-        // This code runs on your server before upload
-        const user = { id: "fakeId" }; // Replace with your actual auth
+    .middleware(async () => {
+      const session = await auth.api.getSession({
+        headers: await headers(),
+      });
 
-        if (!user) throw new UploadThingError("Unauthorized");
+      if (!session) throw new UploadThingError("Unauthorized");
 
-        return { userId: user.id };
-      } catch (error) {
-        console.error("Upload middleware error:", error);
-        throw new UploadThingError("Failed to process upload");
-      }
+      return { userId: session.user.id };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      try {
-        console.log("Upload complete for userId:", metadata.userId);
-        console.log("file url", file.url);
-        return { uploadedBy: metadata.userId };
-      } catch (error) {
-        console.error("Upload complete error:", error);
-        throw new UploadThingError("Failed to complete upload");
-      }
+      console.log("Upload complete for userId:", metadata.userId);
+      console.log("file url", file.url);
+      return { uploadedBy: metadata.userId };
     }),
   datasetUploader: f({
     pdf: { maxFileSize: "32MB" },
@@ -52,21 +45,18 @@ export const ourFileRouter = {
     "application/vnd.ms-excel": { maxFileSize: "32MB" },
   })
     .middleware(async () => {
-      try {
-        return {};
-      } catch (error) {
-        console.error("Upload middleware error:", error);
-        throw new UploadThingError("Failed to process upload");
-      }
+      const session = await auth.api.getSession({
+        headers: await headers(),
+      });
+
+      if (!session) throw new UploadThingError("Unauthorized");
+
+      return { userId: session.user.id };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      try {
-        console.log("Upload complete:", file.url);
-        return { url: file.url };
-      } catch (error) {
-        console.error("Upload complete error:", error);
-        throw new UploadThingError("Failed to complete upload");
-      }
+      console.log("Upload complete for userId:", metadata.userId);
+      console.log("file url", file.url);
+      return { url: file.url, uploadedBy: metadata.userId };
     }),
 } satisfies FileRouter;
 

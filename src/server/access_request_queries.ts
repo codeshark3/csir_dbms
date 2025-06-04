@@ -226,3 +226,20 @@ export async function getAllUserAccessRequestCounts() {
     .groupBy(access_request.status);
   return counts;
 }
+
+export async function getAllAccessRequestCounts() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  const user_id = session?.user.id;
+
+  const counts = await db
+    .select({
+      status: access_request.status,
+      count: count(),
+    })
+    .from(access_request)
+
+    .groupBy(access_request.status);
+  return counts;
+}

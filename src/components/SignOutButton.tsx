@@ -3,8 +3,9 @@
 import { useRouter } from "next/navigation";
 import { authClient } from "~/lib/auth-client";
 import { Button } from "./ui/button";
-import { Link } from "lucide-react";
 import { toast } from "~/hooks/use-toast";
+import { DropdownMenuItem } from "~/components/ui/dropdown-menu";
+
 const SignOutButton = () => {
   const router = useRouter();
 
@@ -14,36 +15,47 @@ const SignOutButton = () => {
         fetchOptions: {
           onRequest: () => {
             toast({
-              // title: { success },
-              description: " Signing out...",
+              description: "Signing out...",
               variant: "default",
-              className: "bg-blue-500 text-white font-bold ",
+              className: "bg-blue-500 text-white font-bold",
             });
           },
           onSuccess: () => {
             toast({
-              // title: { success },
               description: "Signed out successfully",
               variant: "default",
-              className: "bg-emerald-500 text-white font-bold ",
+              className: "bg-emerald-500 text-white font-bold",
             });
-
-            router.push("/sign-in"); // redirect to login page
+            router.push("/sign-in");
+            router.refresh(); // Force a refresh of the page to clear any cached session data
+          },
+          onError: (error) => {
+            console.error("Sign out error:", error);
+            toast({
+              description: "Failed to sign out. Please try again.",
+              variant: "destructive",
+              className: "bg-red-500 text-white font-bold",
+            });
           },
         },
       });
     } catch (error) {
-      console.log("signout error", error);
+      console.error("Sign out error:", error);
+      toast({
+        description: "Failed to sign out. Please try again.",
+        variant: "destructive",
+        className: "bg-red-500 text-white font-bold",
+      });
     }
   };
+
   return (
-    <Button
+    <DropdownMenuItem
       onClick={handleSignOut}
-      className="h-10 bg-transparent p-0 text-primary hover:bg-primary hover:text-white"
-      variant="outline"
+      className="cursor-pointer text-destructive focus:bg-destructive/10"
     >
       Sign Out
-    </Button>
+    </DropdownMenuItem>
   );
 };
 

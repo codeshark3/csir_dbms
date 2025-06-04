@@ -24,7 +24,20 @@ const TableComponent = () => {
         throw new Error("Failed to fetch users");
       }
 
-      setUsers(data.users);
+      // Convert Date objects to strings for createdAt and updatedAt
+      setUsers(
+        data.users.map((user: any) => ({
+          ...user,
+          createdAt:
+            typeof user.createdAt === "string"
+              ? user.createdAt
+              : user.createdAt.toISOString(),
+          updatedAt:
+            typeof user.updatedAt === "string"
+              ? user.updatedAt
+              : user.updatedAt.toISOString(),
+        })),
+      );
     } catch (err) {
       console.error("Error fetching users:", err);
       setError("Failed to fetch users. Please try again.");

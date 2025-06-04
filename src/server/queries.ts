@@ -49,3 +49,8 @@ export async function getUser(id: string) {
 
   return user;
 }
+
+export async function changeUserRole(id: string, role: string) {
+  const user_role = await db.update(user).set({ role }).where(eq(user.id, id));
+  return user_role;
+}

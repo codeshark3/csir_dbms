@@ -303,12 +303,12 @@ export async function AppSidebar() {
                 side="top"
                 className="w-[--radix-popper-anchor-width]"
               >
-                <DropdownMenuItem>
+                {/* <DropdownMenuItem>
                   <span>Account</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
+                </DropdownMenuItem> */}
+                {/* <DropdownMenuItem>
                   <span>Billing</span>
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
                 <DropdownMenuItem>
                   <SignOutButton />
                 </DropdownMenuItem>
