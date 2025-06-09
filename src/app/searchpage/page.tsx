@@ -52,23 +52,23 @@ const Page = () => {
         <Image
           src="/assets/images/logo.png"
           alt="logo"
-          width={100}
-          height={100}
+          width={150}
+          height={150}
           className="mb-4"
         />
-        <h1 className="mb-8 text-center text-3xl font-bold">Search Datasets</h1>
+        <h1 className="mb-8 text-center text-4xl font-bold">Search Datasets</h1>
       </div>
 
-      <div className="relative w-full max-w-2xl">
+      <div className="relative h-12 w-full max-w-3xl">
         <div className="relative">
           <Input
             type="text"
             placeholder="Search datasets..."
             value={query}
             onChange={(e) => handleSearch(e.target.value)}
-            className="w-full"
+            className="h-12 w-full"
           />
-          <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
+          <Search className="absolute right-3 top-1/2 h-6 w-6 -translate-y-1/2 transform text-gray-400" />
         </div>
 
         {showDropdown && results.length > 0 && (

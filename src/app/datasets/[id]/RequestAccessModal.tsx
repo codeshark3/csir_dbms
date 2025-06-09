@@ -70,7 +70,7 @@ const RequestAccessModal = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button disabled={disabled}>
+        <Button className="h-10" disabled={disabled}>
           {disabled ? "Request Pending" : "Request Access"}
         </Button>
       </DialogTrigger>

@@ -4,17 +4,18 @@ import { Button } from "~/components/ui/button";
 import { Download } from "lucide-react";
 
 interface DownloadButtonProps {
-    fileUrl: string;
+  fileUrl: string;
 }
 
 const DownloadButton = ({ fileUrl }: DownloadButtonProps) => (
-    <Button
-        variant="secondary"
-        onClick={() => window.open(fileUrl, '_blank', 'noopener,noreferrer')}
-    >
-        <Download className="mr-2 h-4 w-4" />
-        Download Dataset
-    </Button>
+  <Button
+    variant="secondary"
+    className="h-10"
+    onClick={() => window.open(fileUrl, "_blank", "noopener,noreferrer")}
+  >
+    <Download className="mr-2 h-4 w-4" />
+    Download Dataset
+  </Button>
 );
 
-export default DownloadButton; 
+export default DownloadButton;

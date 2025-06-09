@@ -1,6 +1,7 @@
 import Link from "next/link";
 import React from "react";
-import { getDatasetById } from "~/server/dataset_queries";
+import { utapi } from "~/server/uploadthing";
+
 import { Button } from "~/components/ui/button";
 import {
   Calendar,
@@ -10,7 +11,7 @@ import {
   Building2,
   Download,
 } from "lucide-react";
-import { getUploadthingUrl } from "~/server/uploadthing";
+
 import DownloadButton from "./DownloadButton";
 import RequestAccessModal from "./RequestAccessModal";
 import {
@@ -20,6 +21,8 @@ import {
 import SaveDatasetButton from "./SaveDatasetButton";
 import { headers } from "next/headers";
 import { auth } from "~/lib/auth";
+import { getDatasetById } from "~/server/dataset_queries";
+import Loader from "~/components/Loader";
 
 const DatasetDetailsPage = async (props: {
   params: Promise<{ id: string }>;
@@ -55,29 +58,37 @@ const DatasetDetailsPage = async (props: {
   }
 
   const data = dataset[0] as NonNullable<(typeof dataset)[0]>;
-  const fileUrl = data.fileUrl ? await getUploadthingUrl(data.fileUrl) : null;
+  const fileUrl = data.fileUrl
+    ? await utapi.uploadFilesFromUrl(data.fileUrl)
+    : null;
 
   return (
     <div className="mx-auto w-full px-4 py-8">
       <div className="mb-6 flex-col items-center justify-between">
         <h1 className="text-3xl font-bold text-primary">{data.title}</h1>
         <div className="mt-1 space-x-3">
-          <Link href="/datasets">
-            <Button variant="outline">Back to Datasets</Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link href="/datasets">
+              <Button variant="outline" className="h-10">
+                Back to Datasets
+              </Button>
+            </Link>
 
-          <RequestAccessModal
-            datasetId={id}
-            datasetTitle={data.title}
-            disabled={hasPendingRequest || hasAccess}
-          />
-          <SaveDatasetButton datasetId={data.id} disabled={hasPendingRequest} />
-          {user_role === "admin" ||
-            (user_role === "staff" && (
+            <RequestAccessModal
+              datasetTitle={data.title}
+              datasetId={data.id}
+              disabled={hasPendingRequest || hasAccess}
+            />
+            <SaveDatasetButton
+              datasetId={data.id}
+              disabled={hasPendingRequest}
+            />
+            {user_role === "admin" || user_role === "staff" ? (
               <Link href={`/datasets/${id}/update`}>
-                <Button>Edit Dataset</Button>
+                <Button className="h-10">Edit Dataset</Button>
               </Link>
-            ))}
+            ) : null}
+          </div>
         </div>
       </div>
 
@@ -146,9 +157,11 @@ const DatasetDetailsPage = async (props: {
                       <div key={index} className="rounded-md bg-gray-50 p-4">
                         <div className="flex items-start space-x-2">
                           <FileText className="h-5 w-5 text-gray-500" />
-                          <div className="flex justify-between gap-2">
+                          <div className="flex w-full justify-between gap-2 p-2">
                             <div className="w-1/2">
-                              <p className="text-gray-700">{paper.title}</p>
+                              <div className="flow-text break-words text-gray-700">
+                                {paper.title}
+                              </div>
                             </div>
                             <div className="w-1/2">
                               <a

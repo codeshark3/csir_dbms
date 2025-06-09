@@ -15,7 +15,7 @@ export default function SearchPageLayout({
     <>
       <Header />
 
-      <div className="flex flex-1 flex-col gap-4 p-4">{children}</div>
+      <div className="flex flex-1 flex-col gap-4 border-2 p-4">{children}</div>
     </>
   );
 }

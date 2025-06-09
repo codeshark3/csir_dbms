@@ -1,7 +1,7 @@
 "use server";
 import { db } from "./db";
 import * as z from "zod";
-import { and, count, eq, sql } from "drizzle-orm";
+import { and, count, eq, not, sql } from "drizzle-orm";
 import {
   accessRequestSchema,
   datasetInsertSchema,
@@ -131,7 +131,7 @@ export async function updateAccessRequestStatus({
     const accessRequest = await db
       .update(access_request)
       .set({ status })
-      .where(eq(access_request.id, id));
+      .where(and(eq(access_request.id, id)));
     return { success: "Access request updated successfully!" };
   } else {
     return {

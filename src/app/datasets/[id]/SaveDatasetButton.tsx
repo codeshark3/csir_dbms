@@ -44,6 +44,7 @@ const SaveDatasetButton = ({
   return (
     <Button
       variant="secondary"
+      className="h-10"
       onClick={() => handleSaveDataset(datasetId)}
       disabled={isSaved || disabled}
     >
