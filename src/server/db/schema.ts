@@ -91,6 +91,18 @@ export const dataset = createTable("dataset", {
   user_id: text("user_id").references(() => user.id),
 });
 
+export const dataset_files = createTable("dataset_files", {
+  id: serial("id").primaryKey(),
+  datasetId: text("dataset_id")
+    .notNull()
+    .references(() => dataset.id),
+  fileUrl: text("fileUrl").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .$onUpdate(() => new Date()),
+});
+
 // Tags Table (Stores unique tag names)
 export const tags = createTable("tags", {
   id: serial("id").primaryKey(),

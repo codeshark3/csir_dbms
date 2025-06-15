@@ -1,5 +1,5 @@
 "use client";
-import { useTransition } from "react";
+import { useTransition, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -12,19 +12,17 @@ import { Button } from "~/components/ui/button";
 import { v4 as uuidv4 } from "uuid";
 import { datasetSchema } from "~/schemas";
 import { years, divisions } from "~/constants";
-import { authClient } from "~/lib/auth-client";
 import { insertDataset } from "~/server/dataset_queries";
 import { useRouter } from "next/navigation";
-import { UploadDropzone } from "@uploadthing/react";
-import { papersSchema } from "~/schemas";
-import { useState } from "react";
 import { useUploadThing } from "~/utils/uploadthing";
 import { X } from "lucide-react";
+
 const CreateDatasetForm = () => {
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const { startUpload } = useUploadThing("datasetUploader");
+
   const form = useForm<z.infer<typeof datasetSchema>>({
     resolver: zodResolver(datasetSchema),
     defaultValues: {
@@ -32,17 +30,33 @@ const CreateDatasetForm = () => {
       year: "",
       pi_name: "",
       description: "",
-      division: "", // Default to some valid division ID
-      fileUrl: "",
-      papers: [] as { title: string; url: string }[],
+      division: "",
+      fileUrls: [],
+      papers: [],
       tags: "",
     },
   });
 
+  // Retry file upload function with exponential backoff
+  const uploadWithRetry = async (files: File[], retries = 3) => {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        const result = await startUpload(files);
+        if (!result || result.length === 0) {
+          throw new Error("Upload failed");
+        }
+        return result;
+      } catch (err) {
+        if (attempt === retries) throw err;
+        await new Promise((res) => setTimeout(res, 1000 * attempt)); // exponential backoff
+      }
+    }
+  };
+
   const onSubmit = async (values: z.infer<typeof datasetSchema>) => {
-    if (!file) {
+    if (files.length === 0) {
       toast({
-        description: "Please select a file to upload",
+        description: "Please select at least one file to upload",
         variant: "destructive",
       });
       return;
@@ -52,17 +66,28 @@ const CreateDatasetForm = () => {
 
     startTransition(async () => {
       try {
-        // Upload using UploadThing
-        const uploadResult = await startUpload([file]);
+        const uploadResult = await uploadWithRetry(files);
 
-        if (!uploadResult || !uploadResult[0]) {
-          throw new Error("File upload failed");
+        if (!uploadResult || uploadResult.length === 0) {
+          toast({
+            description: "Upload failed. Please try again.",
+            variant: "destructive",
+          });
+          return;
         }
 
-        const fileUrl = uploadResult[0].url;
+        console.log("Upload result:", uploadResult); // for dev only
 
-        // Then, create the dataset with the file URL
-        const result = await insertDataset({ values, fileUrl, datasetId });
+        const fileUrls = uploadResult.map((result) => result.ufsUrl);
+
+        const result = await insertDataset({
+          values: {
+            ...values,
+            fileUrls,
+          },
+          fileUrl: fileUrls[0] || "",
+          datasetId,
+        });
 
         if (result.success) {
           toast({
@@ -75,11 +100,21 @@ const CreateDatasetForm = () => {
       } catch (error) {
         console.error(error);
         toast({
-          description: "An error occurred",
+          description: "An error occurred during upload. Please try again.",
           variant: "destructive",
         });
       }
     });
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFiles((prevFiles) => [...prevFiles, ...Array.from(e.target.files!)]);
+    }
+  };
+
+  const removeFile = (indexToRemove: number) => {
+    setFiles(files.filter((_, index) => index !== indexToRemove));
   };
 
   return (
@@ -160,22 +195,20 @@ const CreateDatasetForm = () => {
                   placeholder="Paper URL"
                 />
               </div>
-              {index >= 0 && (
-                <div className="mt-4">
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    onClick={() => {
-                      const papers = form.getValues("papers") || [];
-                      papers.splice(index, 1);
-                      form.setValue("papers", papers);
-                    }}
-                    className="mt-4"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
+              <div className="mt-4">
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={() => {
+                    const papers = form.getValues("papers") || [];
+                    papers.splice(index, 1);
+                    form.setValue("papers", papers);
+                  }}
+                  className="mt-4"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           ))}
           <Button
@@ -189,6 +222,7 @@ const CreateDatasetForm = () => {
             Add Paper
           </Button>
         </div>
+
         <CustomFormField
           control={form.control}
           fieldType={FormFieldType.INPUT}
@@ -198,16 +232,48 @@ const CreateDatasetForm = () => {
         />
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">Upload Dataset File</label>
+          <label className="text-sm font-medium">Upload Dataset Files</label>
           <input
             type="file"
-            onChange={(e) => setFile(e.target.files?.[0] || null)}
+            onChange={handleFileChange}
+            disabled={isPending}
             className="w-full"
             accept=".pdf,.doc,.docx,.txt,.csv,.xlsx,.xls"
+            multiple
           />
+          {files.length > 0 && (
+            <div className="mt-2 space-y-2">
+              <p className="text-sm font-medium">Selected files:</p>
+              <ul className="space-y-2">
+                {files.map((file, index) => (
+                  <li
+                    key={index}
+                    className="flex items-center justify-between rounded-md border p-2"
+                  >
+                    <span className="text-sm text-gray-600">
+                      {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                    </span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeFile(index)}
+                      className="h-8 w-8 p-0"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
 
-        <Button type="submit" className="w-full" disabled={isPending || !file}>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={isPending || files.length === 0}
+        >
           {isPending ? "Uploading..." : "Submit"}
         </Button>
       </form>

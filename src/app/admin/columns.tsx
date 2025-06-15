@@ -67,7 +67,7 @@ export const columns: ColumnDef<Users>[] = [
     accessorKey: "name",
     // header: "Start date",
 
-    header: () => <div className="">Gender</div>,
+    header: () => <div className="">Name</div>,
     cell: ({ row }) => {
       return <div className="font-medium">{row.getValue("name")}</div>;
     },
@@ -129,16 +129,16 @@ export const columns: ColumnDef<Users>[] = [
               {/* <Link href={`/admin/users/${user.id}`}>Details</Link> */}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
+            {/* <DropdownMenuItem
               onClick={() => router.push(`/admin/users/${user.id}`)}
             >
               View Customer
-            </DropdownMenuItem>
-            <DropdownMenuItem
+            </DropdownMenuItem> */}
+            {/* <DropdownMenuItem
               onClick={() => console.log("View payment details")}
             >
               View Payment Details
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
       );

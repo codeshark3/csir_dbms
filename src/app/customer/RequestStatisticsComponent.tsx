@@ -15,7 +15,7 @@ interface RequestStatisticsProps {
 const RequestStatisticsComponent = ({ counts }: RequestStatisticsProps) => {
   const getCount = (status: string) =>
     counts.find((c) => c.status === status)?.count ?? 0;
-  console.log(counts);
+
   return (
     <div className="grid gap-6 md:grid-cols-3">
       <Card>

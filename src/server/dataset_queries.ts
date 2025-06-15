@@ -16,6 +16,7 @@ import {
   access_request,
   //  papers,
   user,
+  dataset_files,
 } from "./db/schema";
 
 import { auth } from "~/lib/auth";
@@ -40,10 +41,19 @@ export async function insertDataset({
   if (!validatedFields.success) {
     return { error: "Invalid Fields!" };
   }
-  const { title, year, pi_name, description, division, papers, tags } =
-    validatedFields.data;
+  const {
+    title,
+    year,
+    pi_name,
+    description,
+    division,
+    papers,
+    tags,
+    fileUrls,
+  } = validatedFields.data;
 
   try {
+    // Insert the main dataset record
     await db.insert(dataset).values({
       id: datasetId,
       title,
@@ -54,8 +64,19 @@ export async function insertDataset({
       papers: JSON.stringify(papers),
       tags,
       user_id: user_id,
-      fileUrl: fileUrl,
+      fileUrl: fileUrl, // Keep the primary file URL in the main table
     });
+
+    // Insert all file URLs into the dataset_files table
+    if (fileUrls && fileUrls.length > 0) {
+      await db.insert(dataset_files).values(
+        fileUrls.map((url) => ({
+          datasetId,
+          fileUrl: url,
+        })),
+      );
+    }
+
     revalidatePath("/datasets");
     return { success: true, message: "Dataset added successfully!" };
   } catch (error: any) {
@@ -80,9 +101,43 @@ export async function insertDataset({
 // }
 
 export async function getDatasets() {
-  const datasets = await db.select().from(dataset);
-  return datasets;
+  const datasets = await db
+    .select({
+      id: dataset.id,
+      title: dataset.title,
+      year: dataset.year,
+      pi_name: dataset.pi_name,
+      division: dataset.division,
+      description: dataset.description,
+      papers: dataset.papers,
+      tags: dataset.tags,
+      fileUrl: dataset.fileUrl,
+      createdAt: dataset.createdAt,
+      updatedAt: dataset.updatedAt,
+      user_id: dataset.user_id,
+    })
+    .from(dataset);
+
+  // Get additional file URLs for each dataset
+  const datasetsWithFiles = await Promise.all(
+    datasets.map(async (dataset) => {
+      const additionalFiles = await db
+        .select({
+          fileUrl: dataset_files.fileUrl,
+        })
+        .from(dataset_files)
+        .where(eq(dataset_files.datasetId, dataset.id));
+
+      return {
+        ...dataset,
+        additionalFileUrls: additionalFiles.map((file) => file.fileUrl),
+      };
+    }),
+  );
+
+  return datasetsWithFiles;
 }
+
 export async function getDatasetsForSearch(query: string) {
   const datasets = await db
     .select({
@@ -90,9 +145,9 @@ export async function getDatasetsForSearch(query: string) {
       title: dataset.title,
       year: dataset.year,
       pi_name: dataset.pi_name,
-
       division: dataset.division,
       description: dataset.description,
+      fileUrl: dataset.fileUrl,
     })
     .from(dataset)
     .where(
@@ -105,7 +160,24 @@ export async function getDatasetsForSearch(query: string) {
       ),
     );
 
-  return datasets;
+  // Get additional file URLs for each dataset
+  const datasetsWithFiles = await Promise.all(
+    datasets.map(async (dataset) => {
+      const additionalFiles = await db
+        .select({
+          fileUrl: dataset_files.fileUrl,
+        })
+        .from(dataset_files)
+        .where(eq(dataset_files.datasetId, dataset.id));
+
+      return {
+        ...dataset,
+        additionalFileUrls: additionalFiles.map((file) => file.fileUrl),
+      };
+    }),
+  );
+
+  return datasetsWithFiles;
 }
 
 export async function getDatasetById(id: string) {
@@ -113,7 +185,23 @@ export async function getDatasetById(id: string) {
     .select()
     .from(dataset)
     .where(eq(dataset.id, id));
-  return returnedDataset;
+
+  if (returnedDataset.length === 0) {
+    return null;
+  }
+
+  // Get additional file URLs
+  const additionalFiles = await db
+    .select({
+      fileUrl: dataset_files.fileUrl,
+    })
+    .from(dataset_files)
+    .where(eq(dataset_files.datasetId, id));
+
+  return {
+    ...returnedDataset[0],
+    additionalFileUrls: additionalFiles.map((file) => file.fileUrl),
+  };
 }
 
 export async function deleteDataset(id: string) {
