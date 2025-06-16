@@ -80,6 +80,17 @@ const page = async (props: { params: Promise<{ id: string }> }) => {
               {request.dataset_division}
             </span>
           </div>
+          {request.handled_by && (
+            <div className="flex items-center space-x-2">
+              <User className="h-5 w-5 text-gray-500" />
+              <span className="text-sm font-medium text-gray-500">
+                Handled By:
+              </span>
+              <span className="text-sm text-primary">
+                {request.handler_name}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Description Section */}

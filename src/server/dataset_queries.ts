@@ -27,10 +27,14 @@ export async function insertDataset({
   values,
   fileUrl,
   datasetId,
+  fileType,
+  fileName,
 }: {
   values: z.infer<typeof datasetSchema>;
   fileUrl: string;
   datasetId: string;
+  fileType: string;
+  fileName: string;
 }) {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -64,18 +68,18 @@ export async function insertDataset({
       papers: JSON.stringify(papers),
       tags,
       user_id: user_id,
-      fileUrl: fileUrl, // Keep the primary file URL in the main table
     });
 
     // Insert all file URLs into the dataset_files table
-    if (fileUrls && fileUrls.length > 0) {
-      await db.insert(dataset_files).values(
-        fileUrls.map((url) => ({
-          datasetId,
-          fileUrl: url,
-        })),
-      );
-    }
+    const allFileUrls = [fileUrl, ...(fileUrls || [])];
+    await db.insert(dataset_files).values(
+      allFileUrls.map((url) => ({
+        datasetId,
+        fileUrl: url,
+        fileType: url.split(".").pop() || "",
+        fileName: url.split("/").pop() || "",
+      })),
+    );
 
     revalidatePath("/datasets");
     return { success: true, message: "Dataset added successfully!" };
@@ -111,7 +115,7 @@ export async function getDatasets() {
       description: dataset.description,
       papers: dataset.papers,
       tags: dataset.tags,
-      fileUrl: dataset.fileUrl,
+
       createdAt: dataset.createdAt,
       updatedAt: dataset.updatedAt,
       user_id: dataset.user_id,
@@ -147,7 +151,6 @@ export async function getDatasetsForSearch(query: string) {
       pi_name: dataset.pi_name,
       division: dataset.division,
       description: dataset.description,
-      fileUrl: dataset.fileUrl,
     })
     .from(dataset)
     .where(
@@ -190,17 +193,19 @@ export async function getDatasetById(id: string) {
     return null;
   }
 
-  // Get additional file URLs
-  const additionalFiles = await db
+  // Get all file URLs from dataset_files table
+  const files = await db
     .select({
       fileUrl: dataset_files.fileUrl,
+      fileType: dataset_files.fileType,
+      fileName: dataset_files.fileName,
     })
     .from(dataset_files)
     .where(eq(dataset_files.datasetId, id));
 
   return {
     ...returnedDataset[0],
-    additionalFileUrls: additionalFiles.map((file) => file.fileUrl),
+    files,
   };
 }
 

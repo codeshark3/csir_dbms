@@ -86,6 +86,8 @@ const CreateDatasetForm = () => {
             fileUrls,
           },
           fileUrl: fileUrls[0] || "",
+          fileType: fileUrls[0]?.split(".").pop() || "",
+          fileName: fileUrls[0]?.split("/").pop() || "",
           datasetId,
         });
 

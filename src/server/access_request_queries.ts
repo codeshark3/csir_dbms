@@ -83,6 +83,7 @@ export async function getAllAccessRequests() {
         reason: access_request.reason,
         status: access_request.status,
         createdAt: sql<string>`to_char(${access_request.createdAt}, 'YYYY-MM-DD HH24:MI:SS')`,
+        handler_name: sql<string>`(SELECT name FROM ${user} WHERE id = ${access_request.handledBy})`,
       })
       .from(access_request)
       .innerJoin(user, eq(access_request.userId, user.id));
@@ -127,10 +128,16 @@ export async function updateAccessRequestStatus({
     headers: await headers(),
   });
   const user_role = session?.user.role;
+  const user_id = session?.user.id;
+
   if (user_role === "admin" || user_role === "staff") {
     const accessRequest = await db
       .update(access_request)
-      .set({ status })
+      .set({
+        status,
+        handledBy:
+          status === "approved" || status === "rejected" ? user_id : null,
+      })
       .where(and(eq(access_request.id, id)));
     return { success: "Access request updated successfully!" };
   } else {
@@ -157,6 +164,8 @@ export async function getAccessRequestById(id: number) {
         dataset_year: dataset.year,
         dataset_division: dataset.division,
         reason: access_request.reason,
+        handled_by: access_request.handledBy,
+        handler_name: sql<string>`(SELECT name FROM ${user} WHERE id = ${access_request.handledBy})`,
         request_status: access_request.status,
         createdAt: sql<string>`to_char(${access_request.createdAt}, 'YYYY-MM-DD HH24:MI:SS')`,
       })
@@ -193,8 +202,16 @@ export async function checkPendingRequest(datasetId: string, user_id: string) {
   return hasExistingPendingRequest(user_id, datasetId);
 }
 
-export async function hasApprovedAccess(datasetId: string, user_id: string) {
+export async function hasApprovedAccess(
+  datasetId: string,
+  user_id: string,
+  user_role: string,
+) {
   if (!user_id) return false;
+
+  if (user_role === "admin" || user_role === "staff") {
+    return true;
+  }
 
   const request = await db
     .select()

@@ -21,6 +21,7 @@ export type AccessRequest = {
   reason: string;
   status: string;
   createdAt: string;
+  handler_name: string | null;
 };
 
 export const columns: ColumnDef<AccessRequest>[] = [
@@ -62,7 +63,7 @@ export const columns: ColumnDef<AccessRequest>[] = [
     accessorKey: "reason",
     // header: "Start date",
 
-    header: () => <div className="text-center">Reason</div>,
+    header: () => <div className="">Reason</div>,
     cell: ({ row }) => {
       return <div className="font-medium">{row.getValue("reason")}</div>;
     },
@@ -91,6 +92,14 @@ export const columns: ColumnDef<AccessRequest>[] = [
     header: "User Name",
     cell: ({ row }) => {
       return <div className="font-medium">{row.getValue("user_name")}</div>;
+    },
+  },
+  {
+    accessorKey: "handler_name",
+    header: "Handled By",
+    cell: ({ row }) => {
+      const handlerName = row.getValue("handler_name") as string | null;
+      return <div className="font-medium">{handlerName || "-"}</div>;
     },
   },
   {

@@ -37,9 +37,11 @@ const DatasetDetailsPage = async (props: {
   const hasPendingRequest = user_id
     ? await checkPendingRequest(id, user_id)
     : false;
-  const hasAccess = user_id ? await hasApprovedAccess(id, user_id) : false;
+  const hasAccess = user_id
+    ? await hasApprovedAccess(id, user_id, user_role ?? "user")
+    : false;
 
-  if (!dataset || dataset.length === 0) {
+  if (!dataset) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
         <div className="text-center">
@@ -57,10 +59,23 @@ const DatasetDetailsPage = async (props: {
     );
   }
 
-  const data = dataset[0] as NonNullable<(typeof dataset)[0]>;
-  const fileUrl = data.fileUrl
-    ? await utapi.uploadFilesFromUrl(data.fileUrl)
-    : null;
+  const data = dataset as {
+    id: string;
+    title: string;
+    createdAt: Date;
+    updatedAt: Date;
+    files: {
+      fileUrl: string;
+      fileType: string;
+      fileName: string;
+    }[];
+    tags?: string;
+    papers?: string;
+    year: string;
+    pi_name: string;
+    division: string;
+    description: string;
+  };
 
   return (
     <div className="mx-auto w-full px-4 py-8">
@@ -185,8 +200,23 @@ const DatasetDetailsPage = async (props: {
             </div>
           </div>
         )}
-        {data.fileUrl && hasAccess && <DownloadButton fileUrl={data.fileUrl} />}
-
+        {data.files.length > 0 && hasAccess && (
+          <div className="mb-6">
+            <h2 className="mb-2 text-lg font-semibold text-primary">
+              Download Dataset
+            </h2>
+            <div className="flex flex-col gap-2">
+              {data.files.map((file, index) => (
+                <DownloadButton
+                  key={index}
+                  fileUrl={file.fileUrl}
+                  fileName={file.fileName}
+                  fileType={file.fileType}
+                />
+              ))}
+            </div>
+          </div>
+        )}
         {/* Metadata Footer */}
         <div className="mt-6 border-t pt-4">
           <div className="flex justify-between text-sm text-gray-500">

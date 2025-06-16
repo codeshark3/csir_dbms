@@ -51,6 +51,8 @@ interface CustomProps {
   showTimeSelect?: boolean;
   children?: React.ReactNode;
   renderSkeleton?: (field: any) => React.ReactNode;
+  type?: string;
+  endIcon?: React.ReactNode;
 }
 
 const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
@@ -62,6 +64,8 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
     showTimeSelect,
     dateFormat,
     renderSkeleton,
+    type,
+    endIcon,
   } = props;
   switch (props.fieldType) {
     case FormFieldType.INPUT:
@@ -80,6 +84,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
             <Input
               placeholder={placeholder}
               {...field}
+              type={type}
               className="shad-input border-0"
             />
           </FormControl>
@@ -101,10 +106,11 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
             <Input
               placeholder={placeholder}
               {...field}
-              type="password"
+              type={type || "password"}
               className="shad-input border-0"
             />
           </FormControl>
+          {endIcon && <div className="flex items-center pr-2">{endIcon}</div>}
         </div>
       );
     case FormFieldType.ARRAY:

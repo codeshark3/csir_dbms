@@ -84,7 +84,7 @@ export const dataset = createTable("dataset", {
   division: text("division").notNull(),
   description: text("description").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  fileUrl: text("fileUrl"),
+
   updatedAt: timestamp("updated_at")
     .notNull()
     .$onUpdate(() => new Date()),
@@ -97,6 +97,8 @@ export const dataset_files = createTable("dataset_files", {
     .notNull()
     .references(() => dataset.id),
   fileUrl: text("fileUrl").notNull(),
+  fileType: text("fileType").notNull(),
+  fileName: text("fileName").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()
@@ -128,6 +130,7 @@ export const access_request = createTable("access_request", {
   userId: text("user_id")
     .notNull()
     .references(() => user.id),
+  handledBy: text("handled_by").references(() => user.id),
   status: text("status").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")

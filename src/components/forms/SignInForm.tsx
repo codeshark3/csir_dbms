@@ -20,9 +20,13 @@ import { authClient } from "~/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { toast } from "~/hooks/use-toast";
 import Image from "next/image";
+import { useTransition, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 const SignInForm = () => {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [showPassword, setShowPassword] = useState(false);
   const form = useForm<z.infer<typeof SignInSchema>>({
     resolver: zodResolver(SignInSchema),
     defaultValues: {
@@ -111,8 +115,8 @@ const SignInForm = () => {
               name="email"
               label="Email"
               placeholder="user@email.com"
-            // iconSrc="/assets/icons/email.svg"
-            // iconAlt="email"
+              // iconSrc="/assets/icons/email.svg"
+              // iconAlt="email"
             />
             <CustomFormField
               control={form.control}
@@ -120,8 +124,22 @@ const SignInForm = () => {
               name="password"
               label="Password"
               placeholder="*******"
-            // iconSrc="/assets/icons/email.svg"
-            // iconAlt="email"
+              type={showPassword ? "text" : "password"}
+              endIcon={
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </Button>
+              }
             />
             <Button type="submit" className="w-full bg-primary">
               Sign In

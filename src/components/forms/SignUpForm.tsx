@@ -20,9 +20,13 @@ import { Button } from "../ui/button";
 import { authClient } from "~/lib/auth-client";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useTransition, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 const SignUpForm = () => {
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const form = useForm<z.infer<typeof SignUpSchema>>({
     resolver: zodResolver(SignUpSchema),
     defaultValues: {
@@ -76,13 +80,13 @@ const SignUpForm = () => {
   return (
     <Card className="mx-auto w-full max-w-md">
       <CardHeader>
-        <div className="flex flex-col items-center justify-center pb-4">
+        <div className="flex flex-col items-center justify-center pb-2">
           <Image
             src="/assets/images/logo.png"
             alt="Logo"
             width={100}
             height={100}
-            className="pb-4"
+            className="pb-2"
           />
           <h1 className="text-bold text-xl">CSIR Database Management System</h1>
         </div>
@@ -91,7 +95,7 @@ const SignUpForm = () => {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
             <CustomFormField
               control={form.control}
               fieldType={FormFieldType.INPUT}
@@ -116,8 +120,22 @@ const SignUpForm = () => {
               name="password"
               label="Password"
               placeholder="*******"
-              // iconSrc="/assets/icons/email.svg"
-              // iconAlt="email"
+              type={showPassword ? "text" : "password"}
+              endIcon={
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </Button>
+              }
             />
             <CustomFormField
               control={form.control}
@@ -125,8 +143,22 @@ const SignUpForm = () => {
               name="confirm_password"
               label="Confirm Password"
               placeholder="*******"
-              // iconSrc="/assets/icons/email.svg"
-              // iconAlt="email"
+              type={showConfirmPassword ? "text" : "password"}
+              endIcon={
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </Button>
+              }
             />
             <Button type="submit" className="w-full bg-primary">
               Sign Up
