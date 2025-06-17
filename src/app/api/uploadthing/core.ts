@@ -27,8 +27,8 @@ export const ourFileRouter = {
       return { userId: session.user.id };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("Upload complete for userId:", metadata.userId);
-      console.log("file url", file.url);
+      // console.log("Upload complete for userId:", metadata.userId);
+      // console.log("file url", file.url);
       return { uploadedBy: metadata.userId };
     }),
   datasetUploader: f({
@@ -54,10 +54,10 @@ export const ourFileRouter = {
       return { userId: session.user.id };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("Upload complete for userId:", metadata.userId);
-      console.log("file url", file.ufsUrl);
       return { url: file.ufsUrl, uploadedBy: metadata.userId };
     }),
 } satisfies FileRouter;
 
 export type OurFileRouter = typeof ourFileRouter;
+// console.log("Upload complete for userId:", metadata.userId);
+// console.log("file url", file.ufsUrl);

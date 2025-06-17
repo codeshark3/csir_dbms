@@ -3,6 +3,7 @@ import { getProfile } from "~/server/profile_queries";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
 import { User2, Mail, Calendar, Shield } from "lucide-react";
+import RoleSelect from "~/components/RoleSelect";
 
 const ProfilePage = async () => {
   const profile = await getProfile();
@@ -10,6 +11,9 @@ const ProfilePage = async () => {
   if (!profile || "error" in profile) {
     return <div className="p-4">No profile data found.</div>;
   }
+
+  // Admin check is now handled by the server-side getProfile function
+  const isAdmin = profile.role === "admin";
 
   return (
     <div className="container mx-auto max-w-4xl py-8">
@@ -51,9 +55,11 @@ const ProfilePage = async () => {
                 <Shield className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="text-sm font-medium capitalize">
-                  {profile.role || "User"}
-                </p>
+                <RoleSelect
+                  userId={profile.id}
+                  currentRole={profile.role || "user"}
+                  isAdmin={isAdmin}
+                />
                 <p className="text-sm text-muted-foreground">Account Role</p>
               </div>
             </div>

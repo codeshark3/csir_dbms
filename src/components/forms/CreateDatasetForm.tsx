@@ -40,6 +40,8 @@ const CreateDatasetForm = () => {
   // Retry file upload function with exponential backoff
   const uploadWithRetry = async (files: File[], retries = 3) => {
     for (let attempt = 1; attempt <= retries; attempt++) {
+      // Extract the filenames from the files array for logging or further use
+
       try {
         const result = await startUpload(files);
         if (!result || result.length === 0) {
@@ -80,15 +82,30 @@ const CreateDatasetForm = () => {
 
         const fileUrls = uploadResult.map((result) => result.ufsUrl);
 
+        // Get the first file's info
+        const primaryFile = files[0];
+        const primaryFileUrl = fileUrls[0] || "";
+
+        // Create array of additional file URLs with their original names and types
+        const additionalFileUrls = fileUrls.slice(1).map((url, index) => {
+          const file = files[index + 1];
+          return {
+            url,
+            fileName: file?.name || "",
+            fileType: file?.name?.split(".").pop() || "",
+          };
+        });
+
         const result = await insertDataset({
           values: {
             ...values,
-            fileUrls,
+            fileUrls: additionalFileUrls.map((f) => f.url),
           },
-          fileUrl: fileUrls[0] || "",
-          fileType: fileUrls[0]?.split(".").pop() || "",
-          fileName: fileUrls[0]?.split("/").pop() || "",
+          fileUrl: primaryFileUrl,
+          fileType: primaryFile?.name.split(".").pop() || "",
+          fileName: primaryFile?.name || "",
           datasetId,
+          additionalFiles: additionalFileUrls,
         });
 
         if (result.success) {

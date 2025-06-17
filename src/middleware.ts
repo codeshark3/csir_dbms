@@ -87,7 +87,7 @@ export default async function authMiddleware(request: NextRequest) {
   //   "isCustomer:",
   //   isCustomerRoute,
   // );
-  console.log("Middleware Path:", request.nextUrl.pathname);
+  // console.log("Middleware Path:", request.nextUrl.pathname);
   // console.log("Headers:", request.headers);
 
   let session: Session | null = null;

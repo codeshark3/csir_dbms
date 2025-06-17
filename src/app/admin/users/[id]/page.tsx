@@ -3,6 +3,8 @@ import { getUser } from "~/server/queries";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
 import { User2, Mail, Calendar, Shield } from "lucide-react";
+import RoleSelect from "~/components/RoleSelect";
+import { getProfile } from "~/server/profile_queries";
 
 interface Props {
   params: {
@@ -26,6 +28,12 @@ interface Props {
 const page = async ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
   const profile = await getUser(id);
+  const currentUser = await getProfile();
+
+  // Check if current user is admin
+  const isAdmin =
+    currentUser && !("error" in currentUser) && currentUser.role === "admin";
+
   return (
     <div className="container mx-auto max-w-4xl py-8">
       <Card>
@@ -34,7 +42,7 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
             Profile Information
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            View and manage your account details
+            View and manage user account details
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -66,9 +74,11 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
                 <Shield className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="text-sm font-medium capitalize">
-                  {profile.role || "User"}
-                </p>
+                <RoleSelect
+                  userId={profile.id}
+                  currentRole={profile.role || "user"}
+                  isAdmin={!!isAdmin}
+                />
                 <p className="text-sm text-muted-foreground">Account Role</p>
               </div>
             </div>

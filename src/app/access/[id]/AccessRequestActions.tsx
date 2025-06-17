@@ -7,7 +7,7 @@ import { updateAccessRequestStatus } from "~/server/access_request_queries";
 import { toast } from "~/hooks/use-toast";
 
 const AccessRequestActions = ({ requestId }: { requestId: number }) => {
-  console.log("AccessRequestActions", requestId);
+  // console.log("AccessRequestActions", requestId);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 

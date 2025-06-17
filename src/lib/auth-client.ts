@@ -3,9 +3,9 @@ import { adminClient } from "better-auth/client/plugins";
 
 export const authClient = createAuthClient({
   //local
-  baseURL: "http://localhost:3000",
+  // baseURL: "http://localhost:3000",
   //vercel
-  // baseURL: "https://csir-dbms.vercel.app",
+  baseURL: process.env.BETTER_AUTH_URL,
   // the base url of your auth server
   plugins: [adminClient()],
 });

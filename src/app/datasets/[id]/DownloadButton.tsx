@@ -13,19 +13,25 @@ const DownloadButton = ({
   fileUrl,
   fileName,
   fileType,
-}: DownloadButtonProps) => (
-  <div className="flex flex-col gap-2">
-    <p className="text-sm text-gray-500">{fileName}</p>
-    <p className="text-sm text-gray-500">{fileType}</p>
-    <Button
-      variant="secondary"
-      className="h-10"
-      onClick={() => window.open(fileUrl, "_blank", "noopener,noreferrer")}
-    >
-      <Download className="mr-2 h-4 w-4" />
-      Download
-    </Button>
-  </div>
-);
+}: DownloadButtonProps) => {
+  return (
+    <div className="flex items-center justify-between rounded-lg border p-2 hover:bg-gray-50">
+      <div className="flex items-center gap-4">
+        <div className="flex flex-col">
+          <p className="font-medium">{fileName}</p>
+          <p className="text-sm text-gray-500">{fileType}</p>
+        </div>
+      </div>
+      <Button
+        variant="secondary"
+        size="sm"
+        onClick={() => window.open(fileUrl, "_blank", "noopener,noreferrer")}
+      >
+        <Download className="mr-2 h-4 w-4" />
+        Download
+      </Button>
+    </div>
+  );
+};
 
 export default DownloadButton;

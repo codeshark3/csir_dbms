@@ -7,7 +7,7 @@ import { and, eq } from "drizzle-orm";
 import { SignInSchema, datasetSchema } from "~/schemas/index";
 import type * as z from "zod";
 import { headers } from "next/headers";
-// import { validateRequest } from "~/auth";
+import { revalidatePath } from "next/cache";
 
 export async function getUsersByName(keyword: string) {
   // const user = auth();
@@ -51,6 +51,20 @@ export async function getUser(id: string) {
 }
 
 export async function changeUserRole(id: string, role: string) {
-  const user_role = await db.update(user).set({ role }).where(eq(user.id, id));
-  return user_role;
+  try {
+    // Validate role
+    if (!["admin", "staff", "user"].includes(role)) {
+      return { error: "Invalid role" };
+    }
+
+    const result = await db.update(user).set({ role }).where(eq(user.id, id));
+
+    revalidatePath("/profile");
+    revalidatePath("/admin/users");
+    revalidatePath(`/admin/users/${id}`);
+
+    return { success: true };
+  } catch (error: any) {
+    return { error: error.message || "Failed to update user role" };
+  }
 }

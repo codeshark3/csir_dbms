@@ -202,10 +202,10 @@ const DatasetDetailsPage = async (props: {
         )}
         {data.files.length > 0 && hasAccess && (
           <div className="mb-6">
-            <h2 className="mb-2 text-lg font-semibold text-primary">
-              Download Dataset
+            <h2 className="mb-4 text-lg font-semibold text-primary">
+              Dataset Files
             </h2>
-            <div className="flex flex-col gap-2">
+            <div className="space-y-2">
               {data.files.map((file, index) => (
                 <DownloadButton
                   key={index}

@@ -29,12 +29,14 @@ export async function insertDataset({
   datasetId,
   fileType,
   fileName,
+  additionalFiles,
 }: {
   values: z.infer<typeof datasetSchema>;
   fileUrl: string;
   datasetId: string;
   fileType: string;
   fileName: string;
+  additionalFiles?: Array<{ url: string; fileName: string; fileType: string }>;
 }) {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -45,16 +47,8 @@ export async function insertDataset({
   if (!validatedFields.success) {
     return { error: "Invalid Fields!" };
   }
-  const {
-    title,
-    year,
-    pi_name,
-    description,
-    division,
-    papers,
-    tags,
-    fileUrls,
-  } = validatedFields.data;
+  const { title, year, pi_name, description, division, papers, tags } =
+    validatedFields.data;
 
   try {
     // Insert the main dataset record
@@ -71,15 +65,20 @@ export async function insertDataset({
     });
 
     // Insert all file URLs into the dataset_files table
-    const allFileUrls = [fileUrl, ...(fileUrls || [])];
-    await db.insert(dataset_files).values(
-      allFileUrls.map((url) => ({
+    await db.insert(dataset_files).values([
+      {
         datasetId,
-        fileUrl: url,
-        fileType: url.split(".").pop() || "",
-        fileName: url.split("/").pop() || "",
-      })),
-    );
+        fileUrl,
+        fileType,
+        fileName,
+      },
+      ...(additionalFiles?.map((file) => ({
+        datasetId,
+        fileUrl: file.url,
+        fileType: file.fileType,
+        fileName: file.fileName,
+      })) || []),
+    ]);
 
     revalidatePath("/datasets");
     return { success: true, message: "Dataset added successfully!" };
