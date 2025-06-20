@@ -10,6 +10,7 @@ import {
   FileText,
   Building2,
   Download,
+  Edit,
 } from "lucide-react";
 
 import DownloadButton from "./DownloadButton";
@@ -23,6 +24,7 @@ import { headers } from "next/headers";
 import { auth } from "~/lib/auth";
 import { getDatasetById } from "~/server/dataset_queries";
 import Loader from "~/components/Loader";
+import DeleteDatasetButton from "~/components/DeleteDatasetButton";
 
 const DatasetDetailsPage = async (props: {
   params: Promise<{ id: string }>;
@@ -98,11 +100,26 @@ const DatasetDetailsPage = async (props: {
               datasetId={data.id}
               disabled={hasPendingRequest}
             />
-            {user_role === "admin" || user_role === "staff" ? (
-              <Link href={`/datasets/${id}/update`}>
-                <Button className="h-10">Edit Dataset</Button>
-              </Link>
-            ) : null}
+            {/* Actions Section */}
+            {/* Removed RequestAccessButton and duplicate SaveDatasetButton */}
+            <div className="flex items-center gap-4">
+              {/* Actions for admin/staff are below */}
+              {user_role === "admin" && (
+                <DeleteDatasetButton
+                  datasetId={data.id}
+                  datasetTitle={data.title}
+                  isAdmin={true}
+                />
+              )}
+              {user_role === "admin" || user_role === "staff" ? (
+                <Link href={`/datasets/${id}/update`}>
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <Edit className="h-4 w-4" />
+                    Edit Dataset
+                  </Button>
+                </Link>
+              ) : null}
+            </div>
           </div>
         </div>
       </div>
@@ -151,10 +168,10 @@ const DatasetDetailsPage = async (props: {
 
         {/* Description Section */}
         <div className="mb-6">
-          <h2 className="text-p mb-2 text-lg font-semibold">Description</h2>
-          <p className="whitespace-pre-wrap text-gray-700">
-            {data.description}
-          </p>
+          <h3 className="mb-2 text-lg font-semibold text-gray-900">
+            Description
+          </h3>
+          <p className="text-gray-700">{data.description}</p>
         </div>
 
         {/* Papers Section */}

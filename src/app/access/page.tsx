@@ -11,7 +11,7 @@ const Page = async () => {
   // Format dates if needed
   const formattedData = accessRequests.map((request) => ({
     ...request,
-    // createdAt: request.createdAt.toISOString(),
+    createdAt: new Date(request.createdAt).toLocaleDateString(),
   }));
 
   return (

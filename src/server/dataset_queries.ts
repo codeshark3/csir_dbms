@@ -208,21 +208,52 @@ export async function getDatasetById(id: string) {
   };
 }
 
-export async function deleteDataset(id: string) {
+export async function deleteDataset(datasetId: string) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
   if (!session?.user?.id) throw new Error("Unauthorized");
-  const user_id = session.user.id;
+
+  // Check if user is admin
+  const user_role = session.user?.role;
+  if (user_role !== "admin") {
+    throw new Error("Only administrators can delete datasets");
+  }
 
   try {
-    await db.delete(dataset).where(eq(dataset.id, id));
+    // Use a transaction to ensure all related records are deleted
+    await db.transaction(async (tx) => {
+      // Delete all related records in the correct order to respect foreign key constraints
+
+      // 1. Delete from saved_dataset table
+      await tx
+        .delete(saved_dataset)
+        .where(eq(saved_dataset.datasetId, datasetId));
+
+      // 2. Delete from access_request table
+      await tx
+        .delete(access_request)
+        .where(eq(access_request.datasetId, datasetId));
+
+      // 3. Delete from dataset_tags table
+      await tx.delete(datasetTags).where(eq(datasetTags.datasetId, datasetId));
+
+      // 4. Delete from dataset_files table
+      await tx
+        .delete(dataset_files)
+        .where(eq(dataset_files.datasetId, datasetId));
+
+      // 5. Finally, delete the dataset itself
+      await tx.delete(dataset).where(eq(dataset.id, datasetId));
+    });
+
     revalidatePath("/datasets");
-    return { success: true, message: "Dataset deleted successfully!" };
+    return { success: true, message: "Dataset deleted successfully" };
   } catch (error: any) {
-    return { error: error?.message };
+    return { error: error?.message || "Failed to delete dataset" };
   }
 }
+
 export async function updateDataset(
   id: string,
   data: z.infer<typeof datasetSchema>,

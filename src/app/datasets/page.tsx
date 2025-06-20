@@ -1,13 +1,17 @@
 import Link from "next/link";
 import React from "react";
 import { getDatasets } from "~/server/dataset_queries";
-
 import { Plus, Search } from "lucide-react";
-
 import TableComponent from "./TableComponent";
+import { auth } from "~/lib/auth";
+import { headers } from "next/headers";
 
 const DatasetsPage = async () => {
   const data = await getDatasets();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  const isAdmin = session?.user?.role === "admin";
 
   const formattedData = data.map((dataset) => ({
     ...dataset,
@@ -29,7 +33,7 @@ const DatasetsPage = async () => {
           </Link> */}
         </div>
 
-        <TableComponent initialData={formattedData} />
+        <TableComponent initialData={formattedData} isAdmin={isAdmin} />
       </div>
     </div>
   );

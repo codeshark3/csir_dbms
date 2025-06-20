@@ -56,7 +56,7 @@ const SignUpForm = () => {
         onSuccess: () => {
           toast({
             // title: { success },
-            description: " successfully",
+            description: "Account created successfully",
             variant: "default",
             className: "bg-emerald-500 text-white font-bold ",
           });
@@ -67,7 +67,7 @@ const SignUpForm = () => {
         onError: () => {
           toast({
             // title: { error },
-            description: " failed",
+            description: "Account creation failed",
             variant: "default",
             className: "bg-red-500 text-white font-bold ",
           });

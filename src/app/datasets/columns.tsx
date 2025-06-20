@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "~/components/ui/button";
 import RequestAccessModal from "../datasets/[id]/RequestAccessModal";
+import DeleteDatasetButton from "~/components/DeleteDatasetButton";
 
 import { ArrowUpDown } from "lucide-react";
 import Link from "next/link";
@@ -19,8 +20,8 @@ export type Dataset = {
   papers: string | null;
   division: string;
   description: string;
-  fileUrl: string | null;
   user_id: string | null;
+  additionalFileUrls: string[];
 };
 
 // export type SavedDataset = {
@@ -31,7 +32,7 @@ export type Dataset = {
 //   status: string | null;
 // };
 
-export const columns: ColumnDef<Dataset>[] = [
+export const columns = (isAdmin: boolean): ColumnDef<Dataset>[] => [
   {
     accessorKey: "title",
     header: ({ column }) => {
@@ -98,6 +99,31 @@ export const columns: ColumnDef<Dataset>[] = [
   //           />
   //         )} */}
   //       </span>
+  //     );
+  //   },
+  // },
+
+  // {
+  //   id: "actions",
+  //   cell: ({ row }) => {
+  //     const dataset = row.original;
+
+  //     return (
+  //       <div className="flex items-center gap-2">
+  //         <Link
+  //           href={`/datasets/${dataset.id}`}
+  //           className="text-sm text-blue-600 hover:underline"
+  //         >
+  //           View Details
+  //         </Link>
+  //         {isAdmin && (
+  //           <DeleteDatasetButton
+  //             datasetId={dataset.id}
+  //             datasetTitle={dataset.title}
+  //             isAdmin={isAdmin}
+  //           />
+  //         )}
+  //       </div>
   //     );
   //   },
   // },

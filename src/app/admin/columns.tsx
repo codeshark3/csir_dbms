@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "~/components/ui/button";
-import { Plus, Edit, Pencil } from "lucide-react";
+import { Plus, Edit, Pencil, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +13,8 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import Link from "next/link";
+import { deleteUser } from "~/server/queries";
+import { toast } from "~/hooks/use-toast";
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 export type Users = {
@@ -112,6 +114,27 @@ export const columns: ColumnDef<Users>[] = [
     cell: ({ row }) => {
       const user = row.original as Users;
       const router = useRouter();
+
+      const handleDelete = async () => {
+        try {
+          const response = await deleteUser(user.id);
+          if ("error" in response) {
+            throw new Error(response.error);
+          }
+          toast({
+            description: "User deleted successfully",
+            variant: "default",
+            className: "bg-emerald-500 text-white font-bold",
+          });
+          router.refresh();
+        } catch (error: any) {
+          toast({
+            description: error.message || "Failed to delete user",
+            variant: "destructive",
+          });
+        }
+      };
+
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -129,6 +152,13 @@ export const columns: ColumnDef<Users>[] = [
               {/* <Link href={`/admin/users/${user.id}`}>Details</Link> */}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={handleDelete}
+              className="text-destructive focus:bg-destructive focus:text-destructive-foreground"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete
+            </DropdownMenuItem>
             {/* <DropdownMenuItem
               onClick={() => router.push(`/admin/users/${user.id}`)}
             >

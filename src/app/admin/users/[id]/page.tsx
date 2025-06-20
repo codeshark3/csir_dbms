@@ -5,6 +5,7 @@ import { Separator } from "~/components/ui/separator";
 import { User2, Mail, Calendar, Shield } from "lucide-react";
 import RoleSelect from "~/components/RoleSelect";
 import { getProfile } from "~/server/profile_queries";
+import DeleteUserButton from "~/components/DeleteUserButton";
 
 interface Props {
   params: {
@@ -107,6 +108,17 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
               </div>
             </div>
           </div>
+
+          {isAdmin && currentUser?.id !== profile.id && (
+            <div className="mt-6 border-t pt-6">
+              <h3 className="mb-4 text-lg font-semibold text-destructive">
+                Danger Zone
+              </h3>
+              <div className="max-w-sm">
+                <DeleteUserButton userId={profile.id} userName={profile.name} />
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
